@@ -120,8 +120,12 @@
 ## above this is one mesh at a time below is a folder of meshes pair compare
 
 import os
+os.environ["PYVISTA_OFF_SCREEN"] = "true"
+os.environ["VTK_USE_OFFSCREEN"] = "1"
 import numpy as np
 import pyvista as pv
+pv.start_xvfb()
+#pv.global_theme.off_screen = True
 import trimesh
 import pandas as pd
 import itertools
@@ -169,12 +173,6 @@ def compute_hausdorff_metrics(ref_mesh_path, target_mesh_path, max_dist_threshol
     }
 
     return hausdorff_distances, metrics
-
-# def save_metrics_to_csv(metrics, output_csv):
-#     """Saves computed Hausdorff metrics to a CSV file."""
-#     df = pd.DataFrame(metrics)
-#     df.to_csv(output_csv, index=False)
-#     print(f"✅ Metrics successfully saved to {output_csv}")
     
 def save_metrics_to_csv(metrics_list, output_csv):
     """Saves computed Hausdorff metrics for all mesh comparisons to a CSV file, shifting columns and adding means."""
@@ -188,10 +186,6 @@ def save_metrics_to_csv(metrics_list, output_csv):
     # 🔹 Compute mean values for numeric columns
     numeric_cols = df.select_dtypes(include=[np.number])  # Only numerical columns
     mean_values = numeric_cols.mean().to_dict()  # Compute means
-
-    # 🔹 Ensure "Points < {max_dist_threshold}mm" has a single column (fix duplication issue)
-    #if "Points < max_dist_threshold mm" in mean_values:
-    #    mean_values[f"Points < {max_dist_threshold}mm"] = int(mean_values[f"Points < {max_distance}mm"])  # Convert to integer
 
     # 🔹 Insert a blank row before the means
     blank_row = pd.DataFrame([{col: None for col in df.columns}])  # Convert to DataFrame
@@ -541,7 +535,7 @@ def process_mesh_folder(mesh_folder, output_folder, output_pdf, output_csv, max_
 
 if __name__ == "__main__":
     max_dist_threshold = 3.0
-    mesh_folder = '/mnt/c/Users/User/Desktop/2025 ERN/2025 ERN/MHT/meshlab'
+    mesh_folder = '/mnt/c/Users/klay.luke.PSYDUCK/Desktop/test heatmap'
     output_folder = os.path.join(mesh_folder, "heatmaps")
     output_pdf = os.path.join(mesh_folder, f"heatmap_matrix_{max_dist_threshold}mm_threshold.pdf")
     output_csv = os.path.join(mesh_folder, "hausdorff_metrics.csv")
